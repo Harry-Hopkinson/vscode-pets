@@ -142,6 +142,11 @@
                 "command": "vscode-pets.roll-call",
                 "title": "Roll-call",
                 "category": "Pet Coding"
+            },
+            {
+                "command": "vscode-pets.import-pet-gif",
+                "title": "Import Pet Gif",
+                "category": "Pet Coding"
             }
         ],
         "configuration": [

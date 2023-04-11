@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ColorThemeKind } from 'vscode';
+import * as path from 'path';
 import {
     PetSize,
     PetColor,
@@ -106,7 +107,12 @@ export class PetSpecification {
     size: PetSize;
     name: string;
 
-    constructor(color: PetColor, type: PetType, size: PetSize, name?: string) {
+    constructor(
+        color: PetColor,
+        type: PetType | any,
+        size: PetSize,
+        name?: string,
+    ) {
         this.color = color;
         this.type = type;
         this.size = size;
@@ -393,6 +399,50 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand(
+            'vscode-pets.import-pet-gif',
+            async () => {
+                let folderUris: vscode.Uri[] | undefined =
+                    await vscode.window.showOpenDialog({
+                        canSelectMany: false,
+                        openLabel: vscode.l10n.t('Select GIF Folder'),
+                        canSelectFiles: false,
+                        canSelectFolders: true,
+                    });
+
+                if (folderUris && folderUris.length > 0) {
+                    folderUris = folderUris?.map((uri) => {
+                        return vscode.Uri.file(path.basename(uri.fsPath));
+                    });
+                    const petName = folderUris[0].fsPath.substring(1);
+                    const panel = getPetPanel();
+                    if (panel !== undefined) {
+                        const spec = PetSpecification.fromConfiguration();
+                        panel.spawnPetGif(
+                            new PetSpecification(
+                                spec.color,
+                                String(petName),
+                                spec.size,
+                                spec.name,
+                            ),
+                        );
+                        vscode.window.showInformationMessage('Hello');
+                        panel.spawnPet;
+                    } else {
+                        createPetPlayground(context);
+                    }
+                } else {
+                    vscode.window.showErrorMessage(
+                        vscode.l10n.t(
+                            'You must select a folder to import pets.',
+                        ),
+                    );
+                }
+            },
+        ),
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
             'vscode-pets.export-pet-list',
             async () => {
                 const pets = PetSpecification.collectionFromMemento(
@@ -666,6 +716,7 @@ interface IPetPanel {
     throwBall(): void;
     resetPets(): void;
     spawnPet(spec: PetSpecification): void;
+    spawnPetGif(spec: PetSpecification): void;
     deletePet(petName: string): void;
     listPets(): void;
     rollCall(): void;
@@ -771,6 +822,16 @@ class PetWebviewContainer implements IPetPanel {
     public spawnPet(spec: PetSpecification) {
         this.getWebview().postMessage({
             command: 'spawn-pet',
+            type: spec.type,
+            color: spec.color,
+            name: spec.name,
+        });
+        this.getWebview().postMessage({ command: 'set-size', size: spec.size });
+    }
+
+    public spawnPetGif(spec: PetSpecification) {
+        this.getWebview().postMessage({
+            command: 'spawn-pet-gif',
             type: spec.type,
             color: spec.color,
             name: spec.name,

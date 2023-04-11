@@ -191,6 +191,74 @@ function addPetToPanel(
     );
 }
 
+function addImportedPetToPanel(
+    petType: PetType,
+    basePetUri: string,
+    petColor: PetColor,
+    petSize: PetSize,
+    left: number,
+    bottom: number,
+    floor: number,
+    name: string,
+    stateApi?: VscodeStateApi,
+): PetElement {
+    var petSpriteElement: HTMLImageElement = document.createElement('img');
+    petSpriteElement.className = 'pet';
+    (document.getElementById('petsContainer') as HTMLDivElement).appendChild(
+        petSpriteElement,
+    );
+
+    var collisionElement: HTMLDivElement = document.createElement('div');
+    collisionElement.className = 'collision';
+    (document.getElementById('petsContainer') as HTMLDivElement).appendChild(
+        collisionElement,
+    );
+
+    var speechBubbleElement: HTMLDivElement = document.createElement('div');
+    speechBubbleElement.className = `bubble bubble-${petSize}`;
+    speechBubbleElement.innerText = 'Hello!';
+    (document.getElementById('petsContainer') as HTMLDivElement).appendChild(
+        speechBubbleElement,
+    );
+
+    const root = basePetUri + '/' + petType + '/' + petColor;
+    console.log('Creating new pet : ', petType, root, petColor, petSize, name);
+    try {
+        if (!availableColors(petType).includes(petColor)) {
+            throw new InvalidPetException('Invalid color for pet type');
+        }
+        var newPet = createPet(
+            petType,
+            petSpriteElement,
+            collisionElement,
+            speechBubbleElement,
+            petSize,
+            left,
+            bottom,
+            root,
+            floor,
+            name,
+        );
+        petCounter++;
+        startAnimations(collisionElement, newPet, stateApi);
+    } catch (e: any) {
+        // Remove elements
+        petSpriteElement.remove();
+        collisionElement.remove();
+        speechBubbleElement.remove();
+        throw e;
+    }
+
+    return new PetElement(
+        petSpriteElement,
+        collisionElement,
+        speechBubbleElement,
+        newPet,
+        petColor,
+        petType,
+    );
+}
+
 export function saveState(stateApi?: VscodeStateApi) {
     if (!stateApi) {
         stateApi = acquireVsCodeApi();
@@ -552,7 +620,20 @@ export function petPanelApp(
                 );
                 saveState(stateApi);
                 break;
-
+            case 'spawn-pet-gif':
+                allPets.push(
+                    addImportedPetToPanel(
+                        message.type,
+                        basePetUri,
+                        message.color,
+                        petSize,
+                        randomStartPosition(),
+                        floor,
+                        floor,
+                        message.name ?? randomName(message.type),
+                        stateApi,
+                    ),
+                );
             case 'list-pets':
                 var pets = allPets.pets;
                 stateApi?.postMessage({
