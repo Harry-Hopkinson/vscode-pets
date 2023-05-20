@@ -147,6 +147,11 @@
         "configuration": [
             {
                 "properties": {
+                    "vscode-pets.enableSavePetsGlobally": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Save pets globally instead of per workspace."
+                    },
                     "vscode-pets.petColor": {
                         "type": "string",
                         "enum": [
@@ -258,12 +263,14 @@
         "@vscode/test-web": "^0.0.31",
         "eslint": "^8.18.0",
         "eslint-plugin-unused-imports": "^2.0.0",
+        "fs": "^0.0.1-security",
         "glob": "^8.0.3",
         "gulp": "^4.0.2",
         "jsdom": "^20.0.0",
         "jsdom-global": "^3.0.2",
         "mocha": "^10.0.0",
         "nyc": "^15.1.0",
+        "os": "^0.1.2",
         "path-browserify": "^1.0.1",
         "prettier": "^2.7.1",
         "process": "^0.11.10",

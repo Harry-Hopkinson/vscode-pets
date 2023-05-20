@@ -18,6 +18,7 @@ import {
     InvalidPetException,
 } from './pets';
 import { BallState, PetElementState, PetPanelState } from './states';
+import { workspace } from 'vscode';
 
 /* This is how the VS Code API can be invoked from the panel */
 declare global {
@@ -191,6 +192,14 @@ function addPetToPanel(
     );
 }
 
+export function writePetToGlobalState() {
+    const fs = require('fs');
+    const os = require('os');
+
+    const homedir = os.homedir();
+    console.log(homedir);
+}
+
 export function saveState(stateApi?: VscodeStateApi) {
     if (!stateApi) {
         stateApi = acquireVsCodeApi();
@@ -198,17 +207,28 @@ export function saveState(stateApi?: VscodeStateApi) {
     var state = new PetPanelState();
     state.petStates = new Array();
 
-    allPets.pets.forEach((petItem) => {
-        state.petStates?.push({
-            petName: petItem.pet.name,
-            petColor: petItem.color,
-            petType: petItem.type,
-            petState: petItem.pet.getState(),
-            petFriend: petItem.pet.friend?.name ?? undefined,
-            elLeft: petItem.el.style.left,
-            elBottom: petItem.el.style.bottom,
+    if (
+        workspace
+            .getConfiguration('vscode-pets')
+            .get<boolean>('enableSavePetsGlobally') == false
+    ) {
+        allPets.pets.forEach((petItem) => {
+            state.petStates?.push({
+                petName: petItem.pet.name,
+                petColor: petItem.color,
+                petType: petItem.type,
+                petState: petItem.pet.getState(),
+                petFriend: petItem.pet.friend?.name ?? undefined,
+                elLeft: petItem.el.style.left,
+                elBottom: petItem.el.style.bottom,
+            });
         });
-    });
+    } else {
+        // load the file from the root of the user's home directory
+        const homedir = require('os').homedir();
+        const petFile = homedir + '/.vscode-pets-list.json';
+    }
+
     state.petCounter = petCounter;
     stateApi?.setState(state);
 }
@@ -551,6 +571,13 @@ export function petPanelApp(
                     ),
                 );
                 saveState(stateApi);
+                if (
+                    workspace
+                        .getConfiguration('vscode-pets')
+                        .get<boolean>('enableSavePetsGlobally') == true
+                ) {
+                    writePetToGlobalState();
+                }
                 break;
 
             case 'list-pets':

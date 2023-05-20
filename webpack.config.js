@@ -25,6 +25,10 @@ const desktopConfig = {
   ],
   resolve: {
     extensions: [".ts", ".tsx", ".js"],
+		fallback: {
+			"fs": false,
+			"os": false,
+		}
   },
   module: {
     rules: [{
@@ -40,6 +44,9 @@ const desktopConfig = {
       ],
     }]
   },
+	externals: {
+		vscode: 'commonjs vscode',
+	}
 };
 
 const webExtensionConfig = {
