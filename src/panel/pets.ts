@@ -15,6 +15,7 @@ import { Zappy } from './pets/zappy';
 import { Rat } from './pets/rat';
 import { Turtle } from './pets/turtle';
 import { IPetType } from './states';
+import { Uri } from 'vscode';
 
 export class PetElement {
     el: HTMLImageElement;
@@ -45,6 +46,24 @@ export class PetElement {
         this.pet = pet;
         this.color = color;
         this.type = type;
+    }
+}
+
+export class PetImport {
+    private readonly _name: string;
+    private readonly _uri: Uri;
+
+    constructor(name: string, petUri: Uri) {
+        this._name = name;
+        this._uri = petUri;
+    }
+
+    get name(): string {
+        return this._name;
+    }
+
+    get uri(): Uri {
+        return this._uri;
     }
 }
 

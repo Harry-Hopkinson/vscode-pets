@@ -620,20 +620,6 @@ export function petPanelApp(
                 );
                 saveState(stateApi);
                 break;
-            case 'spawn-pet-gif':
-                allPets.push(
-                    addImportedPetToPanel(
-                        message.type,
-                        basePetUri,
-                        message.color,
-                        petSize,
-                        randomStartPosition(),
-                        floor,
-                        floor,
-                        message.name ?? randomName(message.type),
-                        stateApi,
-                    ),
-                );
             case 'list-pets':
                 var pets = allPets.pets;
                 stateApi?.postMessage({

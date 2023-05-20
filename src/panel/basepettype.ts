@@ -232,6 +232,13 @@ export abstract class BasePetType implements IPetType {
         this.el.src = `${this.petRoot}_${face}_8fps.gif`;
     }
 
+    setImportAnimation(face: string, name: string) {
+        if (this.el.src.endsWith(`_${face}_8fps.gif`)) {
+            return;
+        }
+        this.el.src = `${name}_${face}_8fps.gif`;
+    }
+
     chooseNextState(fromState: States): States {
         // Work out next state
         var possibleNextStates: States[] | undefined = undefined;

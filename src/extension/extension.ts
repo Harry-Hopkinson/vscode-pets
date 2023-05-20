@@ -26,6 +26,8 @@ const DEFAULT_COLOR = PetColor.brown;
 const DEFAULT_PET_TYPE = PetType.cat;
 const DEFAULT_POSITION = ExtPosition.panel;
 const DEFAULT_THEME = Theme.none;
+const PET_FOLDER_NAME = 'pets';
+const PET_FILE_EXTENSION = '.gif';
 
 class PetQuickPickItem implements vscode.QuickPickItem {
     constructor(
@@ -99,6 +101,16 @@ function updateExtensionPositionContext() {
         'vscode-pets.position',
         getConfigurationPosition(),
     );
+}
+
+function isValidPetFolder(folderPath: string): boolean {
+    // Check if the folder contains at least one pet gif file
+    const petFiles = vscode.workspace.findFiles(`${folderPath}/*.gif`);
+    if (String(petFiles).length === 0) {
+        return false;
+    }
+
+    return true;
 }
 
 export class PetSpecification {
@@ -401,41 +413,34 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             'vscode-pets.import-pet-gif',
             async () => {
-                let folderUris: vscode.Uri[] | undefined =
-                    await vscode.window.showOpenDialog({
-                        canSelectMany: false,
-                        openLabel: vscode.l10n.t('Select GIF Folder'),
-                        canSelectFiles: false,
-                        canSelectFolders: true,
-                    });
+                const petFolderUri = await vscode.window.showOpenDialog({
+                    canSelectFolders: true,
+                    canSelectFiles: false,
+                    openLabel: 'Select Pet Folder',
+                });
 
-                if (folderUris && folderUris.length > 0) {
-                    folderUris = folderUris?.map((uri) => {
-                        return vscode.Uri.file(path.basename(uri.fsPath));
-                    });
-                    const petName = folderUris[0].fsPath.substring(1);
-                    const panel = getPetPanel();
-                    if (panel !== undefined) {
-                        const spec = PetSpecification.fromConfiguration();
-                        panel.spawnPetGif(
-                            new PetSpecification(
-                                spec.color,
-                                String(petName),
-                                spec.size,
-                                spec.name,
-                            ),
-                        );
-                        vscode.window.showInformationMessage('Hello');
-                        panel.spawnPet;
-                    } else {
-                        createPetPlayground(context);
-                    }
-                } else {
+                if (!petFolderUri) {
+                    return;
+                }
+
+                const petFolder = petFolderUri[0].fsPath;
+
+                if (!isValidPetFolder(petFolder)) {
                     vscode.window.showErrorMessage(
-                        vscode.l10n.t(
-                            'You must select a folder to import pets.',
-                        ),
+                        'Invalid pet folder. Please make sure the folder follows the naming conventions for pet gifs.',
                     );
+                    return;
+                }
+
+                const petName = path.basename(petFolder);
+
+                const panel = getPetPanel();
+                if (panel !== undefined) {
+                    const spec = PetSpecification.fromConfiguration();
+                    spec.name = petName;
+                    panel.spawnPet(spec);
+                } else {
+                    createPetPlayground(context);
                 }
             },
         ),
@@ -716,7 +721,6 @@ interface IPetPanel {
     throwBall(): void;
     resetPets(): void;
     spawnPet(spec: PetSpecification): void;
-    spawnPetGif(spec: PetSpecification): void;
     deletePet(petName: string): void;
     listPets(): void;
     rollCall(): void;
@@ -822,16 +826,6 @@ class PetWebviewContainer implements IPetPanel {
     public spawnPet(spec: PetSpecification) {
         this.getWebview().postMessage({
             command: 'spawn-pet',
-            type: spec.type,
-            color: spec.color,
-            name: spec.name,
-        });
-        this.getWebview().postMessage({ command: 'set-size', size: spec.size });
-    }
-
-    public spawnPetGif(spec: PetSpecification) {
-        this.getWebview().postMessage({
-            command: 'spawn-pet-gif',
             type: spec.type,
             color: spec.color,
             name: spec.name,
