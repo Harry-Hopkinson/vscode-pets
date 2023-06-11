@@ -223,6 +223,11 @@
                         "type": "boolean",
                         "default": false,
                         "description": "Throw ball with mouse"
+                    },
+                    "vscode-pets.reverseLint": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Reverse Lint your code if you do not play with your Pets"
                     }
                 }
             }

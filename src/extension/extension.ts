@@ -799,6 +799,32 @@ class PetWebviewContainer implements IPetPanel {
         webview.html = this._getHtmlForWebview(webview);
     }
 
+    checkInactivity(): void {
+        // Check for inactivity every hour
+        const interval = 60 * 60 * 1000;
+
+        let lastBallThrowTime = Date.now();
+        let lastSpriteAnimationTime = Date.now();
+
+        setInterval(() => {
+            // Get the current time
+            const currentTime = Date.now();
+
+            // Check if the ball has not been thrown in the last hour
+            if (currentTime - lastBallThrowTime >= interval) {
+                // Do something, such as display a message or play a sound
+                console.log('No ball has been thrown in the last hour!');
+            }
+            // Check if the sprite animation has not been activated in the last hour
+            if (currentTime - lastSpriteAnimationTime >= interval) {
+                // Do something, such as display a message or play a sound
+                console.log(
+                    'The sprite animation has not been activated in the last hour!',
+                );
+            }
+        }, interval);
+    }
+
     public update() {}
 
     protected _getHtmlForWebview(webview: vscode.Webview) {
