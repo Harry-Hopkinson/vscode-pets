@@ -596,6 +596,16 @@ export function petPanelApp(
                 petCounter = 0;
                 saveState(stateApi);
                 break;
+            case 'feed-pet':
+                var pet = allPets.locate(message.name);
+                if (pet) {
+                    if (pet.type === PetType.cat) {
+                        stateApi?.postMessage({
+                            command: 'error',
+                            text: `Cat`,
+                        });
+                    }
+                }
             case 'pause-pet':
                 petCounter = 1;
                 saveState(stateApi);

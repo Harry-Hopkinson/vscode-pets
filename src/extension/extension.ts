@@ -258,6 +258,57 @@ async function handleRemovePetMessage(
         });
 }
 
+async function feedPetsMessage(
+    this: vscode.ExtensionContext,
+    message: WebviewMessage,
+) {
+    var petList: IPetInfo[] = Array();
+    switch (message.command) {
+        case 'list-pets':
+            message.text.split('\n').forEach((pet) => {
+                if (!pet) {
+                    return;
+                }
+                var parts = pet.split(',');
+                petList.push({
+                    type: parts[0] as PetType,
+                    name: parts[1],
+                    color: parts[2] as PetColor,
+                });
+            });
+            break;
+        default:
+            return;
+    }
+    if (!petList) {
+        return;
+    }
+    if (!petList.length) {
+        vscode.window.showErrorMessage(
+            vscode.l10n.t('There are no pets to feed.'),
+        );
+        return;
+    }
+
+    await vscode.window
+        .showQuickPick<PetQuickPickItem>(
+            petList.map((val) => {
+                return new PetQuickPickItem(val.name, val.type, val.color);
+            }),
+            {
+                placeHolder: vscode.l10n.t('Select the pet to feed.'),
+            },
+        )
+        .then((pet: PetQuickPickItem | undefined) => {
+            if (pet) {
+                const panel = getPetPanel();
+                if (panel !== undefined) {
+                    panel.feedPet(pet.name);
+                }
+            }
+        });
+}
+
 function getPetPanel(): IPetPanel | undefined {
     if (
         getConfigurationPosition() === ExtPosition.explorer &&
@@ -374,6 +425,18 @@ export function activate(context: vscode.ExtensionContext) {
                     handleRemovePetMessage,
                     context,
                 );
+            } else {
+                createPetPlayground(context);
+            }
+        }),
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('vscode-pets.feed-pet', async () => {
+            const panel = getPetPanel();
+            if (panel !== undefined) {
+                panel.listPets();
+                getWebview()?.onDidReceiveMessage(feedPetsMessage, context);
             } else {
                 createPetPlayground(context);
             }
@@ -671,6 +734,7 @@ interface IPetPanel {
     deletePet(petName: string): void;
     listPets(): void;
     rollCall(): void;
+    feedPet(petName: string): void;
     themeKind(): vscode.ColorThemeKind;
     throwBallWithMouse(): boolean;
     updatePetColor(newColor: PetColor): void;
@@ -790,6 +854,10 @@ class PetWebviewContainer implements IPetPanel {
 
     public deletePet(petName: string) {
         this.getWebview().postMessage({ command: 'delete-pet', name: petName });
+    }
+
+    public feedPet(petName: string) {
+        this.getWebview().postMessage({ command: 'feed-pet', name: petName });
     }
 
     protected getWebview(): vscode.Webview {
@@ -968,6 +1036,10 @@ class PetPanel extends PetWebviewContainer implements IPetPanel {
 
     public deletePet(petName: string): void {
         this.getWebview().postMessage({ command: 'delete-pet', name: petName });
+    }
+
+    public feedPet(petName: string): void {
+        this.getWebview().postMessage({ command: 'feed-pet', name: petName });
     }
 
     public static revive(
