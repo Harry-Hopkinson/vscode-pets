@@ -49,6 +49,9 @@ export class Mod extends BasePetType {
     get hello(): string {
         return ` Hi, I'm Mod the dotnet bot, what are you building today?`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const MOD_NAMES: ReadonlyArray<string> = [

@@ -85,6 +85,9 @@ export class Cat extends BasePetType {
     get hello(): string {
         return `brrr... Meow!`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const CAT_NAMES: ReadonlyArray<string> = [

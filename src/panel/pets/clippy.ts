@@ -54,6 +54,9 @@ export class Clippy extends BasePetType {
     get hello(): string {
         return ` Hi, I'm Clippy, would you like some assistance today? 👋!`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const CLIPPY_NAMES: ReadonlyArray<string> = [

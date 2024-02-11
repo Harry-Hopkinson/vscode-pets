@@ -58,6 +58,9 @@ export class Chicken extends BasePetType {
     get hello(): string {
         return ` Puk Puk Pukaaak - just let me lay my egg. 🥚`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const CHICKEN_NAMES: ReadonlyArray<string> = [

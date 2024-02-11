@@ -50,6 +50,9 @@ export class Zappy extends BasePetType {
         // TODO: #193 Add a custom message for zappy
         return ` Hello this is Zappy! Do I look familiar?? I am the mascot for Azure Functions😉`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const ZAPPY_NAMES: ReadonlyArray<string> = [

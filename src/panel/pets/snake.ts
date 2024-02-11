@@ -57,6 +57,9 @@ export class Snake extends BasePetType {
     get hello(): string {
         return `Sss... Oh. Oh my gosh! I'm a snake!`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const SNAKE_NAMES: ReadonlyArray<string> = [

@@ -49,6 +49,9 @@ export class RubberDuck extends BasePetType {
     get hello(): string {
         return ` Hi, I love to quack around 👋!`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const DUCK_NAMES: ReadonlyArray<string> = [

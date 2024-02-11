@@ -104,6 +104,7 @@ suite('Pets Test Suite', () => {
             testPet,
             PetColor.brown,
             PetType.cat,
+            0,
         );
         assert.strictEqual(testPetElement.color, PetColor.brown);
         assert.strictEqual(testPetElement.type, PetType.cat);

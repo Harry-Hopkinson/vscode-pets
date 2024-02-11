@@ -50,6 +50,9 @@ export class Cockatiel extends BasePetType {
         // TODO: #191 Add a custom message for cockatiel
         return ` Hello, I'm a good bird 👋!`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const COCKATIEL_NAMES: ReadonlyArray<string> = [

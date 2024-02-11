@@ -64,6 +64,9 @@ export class Totoro extends BasePetType {
     get hello(): string {
         return `Try Laughing. Then Whatever Scares You Will Go Away. 🎭`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const TOTORO_NAMES: ReadonlyArray<string> = [

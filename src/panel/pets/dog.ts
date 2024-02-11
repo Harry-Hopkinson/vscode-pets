@@ -73,6 +73,9 @@ export class Dog extends BasePetType {
     get hello(): string {
         return ` Every dog has its day - and today is woof day! Today I just want to bark. Take me on a walk`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const DOG_NAMES: ReadonlyArray<string> = [

@@ -32,6 +32,7 @@ export interface IPetType {
     friend: IPetType | undefined;
     makeFriendsWith(friend: IPetType): boolean;
     isPlaying: boolean;
+    hunger: number;
 
     showSpeechBubble(message: string, duration: number): void;
 }

@@ -49,6 +49,9 @@ export class Crab extends BasePetType {
     get hello(): string {
         return ` Hi, I'm Crabsolutely Clawsome Crab 👋!`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const CRAB_NAMES: ReadonlyArray<string> = [

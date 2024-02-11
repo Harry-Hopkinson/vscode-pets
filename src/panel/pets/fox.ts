@@ -83,6 +83,9 @@ export class Fox extends BasePetType {
     get hello(): string {
         return `fox says hello`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const FOX_NAMES: ReadonlyArray<string> = [

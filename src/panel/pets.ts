@@ -23,13 +23,19 @@ export class PetElement {
     pet: IPetType;
     color: PetColor;
     type: PetType;
+    hunger: number = 0;
     remove() {
         this.el.remove();
         this.collision.remove();
         this.speech.remove();
         this.color = PetColor.null;
         this.type = PetType.null;
+        this.hunger = 0;
     }
+
+    // increaseHunger() {
+    //     this.hunger += 1;
+    // }
 
     constructor(
         el: HTMLImageElement,
@@ -38,6 +44,7 @@ export class PetElement {
         pet: IPetType,
         color: PetColor,
         type: PetType,
+        hunger: number,
     ) {
         this.el = el;
         this.collision = collision;
@@ -45,6 +52,7 @@ export class PetElement {
         this.pet = pet;
         this.color = color;
         this.type = type;
+        this.hunger = hunger;
     }
 }
 
@@ -55,6 +63,7 @@ export interface IPetCollection {
     seekNewFriends(): string[];
     locate(name: string): PetElement | undefined;
     remove(name: string): void;
+    increaseHunger(): void;
 }
 
 export class PetCollection implements IPetCollection {
@@ -82,6 +91,12 @@ export class PetCollection implements IPetCollection {
     locate(name: string): PetElement | undefined {
         return this._pets.find((collection) => {
             return collection.pet.name === name;
+        });
+    }
+
+    increaseHunger() {
+        this._pets.forEach((pet) => {
+            pet.hunger += 1;
         });
     }
 
@@ -175,35 +190,35 @@ export function createPet(
 
     switch (petType) {
         case PetType.cat:
-            return new Cat(...standardPetArguments, PetSpeed.normal);
+            return new Cat(...standardPetArguments, PetSpeed.normal, 0);
         case PetType.chicken:
-            return new Chicken(...standardPetArguments, PetSpeed.normal);
+            return new Chicken(...standardPetArguments, PetSpeed.normal, 0);
         case PetType.dog:
-            return new Dog(...standardPetArguments, PetSpeed.normal);
+            return new Dog(...standardPetArguments, PetSpeed.normal, 0);
         case PetType.fox:
-            return new Fox(...standardPetArguments, PetSpeed.fast);
+            return new Fox(...standardPetArguments, PetSpeed.fast, 0);
         case PetType.crab:
-            return new Crab(...standardPetArguments, PetSpeed.slow);
+            return new Crab(...standardPetArguments, PetSpeed.slow, 0);
         case PetType.clippy:
-            return new Clippy(...standardPetArguments, PetSpeed.slow);
+            return new Clippy(...standardPetArguments, PetSpeed.slow, 0);
         case PetType.mod:
-            return new Mod(...standardPetArguments, PetSpeed.normal);
+            return new Mod(...standardPetArguments, PetSpeed.normal, 0);
         case PetType.totoro:
-            return new Totoro(...standardPetArguments, PetSpeed.normal);
+            return new Totoro(...standardPetArguments, PetSpeed.normal, 0);
         case PetType.snake:
-            return new Snake(...standardPetArguments, PetSpeed.verySlow);
+            return new Snake(...standardPetArguments, PetSpeed.verySlow, 0);
         case PetType.rubberduck:
-            return new RubberDuck(...standardPetArguments, PetSpeed.fast);
+            return new RubberDuck(...standardPetArguments, PetSpeed.fast, 0);
         case PetType.zappy:
-            return new Zappy(...standardPetArguments, PetSpeed.veryFast);
+            return new Zappy(...standardPetArguments, PetSpeed.veryFast, 0);
         case PetType.rocky:
-            return new Rocky(...standardPetArguments, PetSpeed.still);
+            return new Rocky(...standardPetArguments, PetSpeed.still, 0);
         case PetType.cockatiel:
-            return new Cockatiel(...standardPetArguments, PetSpeed.normal);
+            return new Cockatiel(...standardPetArguments, PetSpeed.normal, 0);
         case PetType.rat:
-            return new Rat(...standardPetArguments, PetSpeed.normal);
+            return new Rat(...standardPetArguments, PetSpeed.normal, 0);
         case PetType.turtle:
-            return new Turtle(...standardPetArguments, PetSpeed.verySlow);
+            return new Turtle(...standardPetArguments, PetSpeed.verySlow, 0);
         default:
             throw new InvalidPetException("Pet type doesn't exist");
     }

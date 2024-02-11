@@ -188,6 +188,7 @@ function addPetToPanel(
         newPet,
         petColor,
         petType,
+        0,
     );
 }
 
@@ -599,6 +600,18 @@ export function petPanelApp(
             case 'pause-pet':
                 petCounter = 1;
                 saveState(stateApi);
+                break;
+            case 'update-hunger':
+                allPets.increaseHunger();
+                var pets = allPets.pets;
+                // go through every single
+                // pet and then print out their name
+                pets.forEach((pet) => {
+                    stateApi?.postMessage({
+                        command: 'info',
+                        text: `${pet.pet.emoji} ${pet.pet.name} (${pet.color} ${pet.type}): ${pet.pet.hello}: ${pet.pet.hunger}`,
+                    });
+                });
                 break;
         }
     });

@@ -105,16 +105,26 @@ export class PetSpecification {
     type: PetType;
     size: PetSize;
     name: string;
+    hunger: number;
 
     constructor(color: PetColor, type: PetType, size: PetSize, name?: string) {
         this.color = color;
         this.type = type;
         this.size = size;
+        this.hunger = 0;
         if (!name) {
             this.name = randomName(type);
         } else {
             this.name = name;
         }
+    }
+
+    increaseHunger(): void {
+        this.hunger++;
+    }
+
+    feed(): void {
+        this.hunger = 0;
     }
 
     static fromConfiguration(): PetSpecification {
@@ -317,6 +327,9 @@ export function activate(context: vscode.ExtensionContext) {
         }),
     );
 
+    // every 30 seconds - increase pet hunger
+    setInterval(increaseHunger, 3000);
+
     spawnPetStatusBar = vscode.window.createStatusBarItem(
         vscode.StatusBarAlignment.Right,
         100,
@@ -382,11 +395,26 @@ export function activate(context: vscode.ExtensionContext) {
         }),
     );
 
+    // check for commits
+    // const gitWatcher = vscode.workspace.createFileSystemWatcher('**/.git');
+    // gitWatcher.onDidChange(() => {
+    //     const pets = PetSpecification.collectionFromMemento(
+    //         context,
+    //         getConfiguredSize(),
+    //     );
+    //     pets.forEach((pet) => {
+    //         vscode.window.showInformationMessage(
+    //             vscode.l10n.t('🍬 Feeding {0}', pet.name),
+    //         );
+    //         pet.feed();
+    //     });
+    // });
+
     context.subscriptions.push(
         vscode.commands.registerCommand('vscode-pets.roll-call', async () => {
             const panel = getPetPanel();
             if (panel !== undefined) {
-                panel.rollCall();
+                panel.updateHunger();
             } else {
                 await createPetPlayground(context);
             }
@@ -692,6 +720,7 @@ interface IPetPanel {
     updatePetType(newType: PetType): void;
     updatePetSize(newSize: PetSize): void;
     updateTheme(newTheme: Theme, themeKind: vscode.ColorThemeKind): void;
+    updateHunger(): void;
     update(): void;
     setThrowWithMouse(newThrowWithMouse: boolean): void;
 }
@@ -811,6 +840,10 @@ class PetWebviewContainer implements IPetPanel {
             command: 'delete-pet',
             name: petName,
         });
+    }
+
+    public updateHunger(): void {
+        void this.getWebview().postMessage({ command: 'update-hunger' });
     }
 
     protected getWebview(): vscode.Webview {
@@ -987,6 +1020,10 @@ class PetPanel extends PetWebviewContainer implements IPetPanel {
         void this.getWebview().postMessage({ command: 'roll-call' });
     }
 
+    public updateHunger(): void {
+        void this.getWebview().postMessage({ command: 'update-hunger' });
+    }
+
     public deletePet(petName: string): void {
         void this.getWebview().postMessage({
             command: 'delete-pet',
@@ -1161,3 +1198,10 @@ async function createPetPlayground(context: vscode.ExtensionContext) {
         await storeCollectionAsMemento(context, collection);
     }
 }
+
+const increaseHunger = function () {
+    const panel = getPetPanel();
+    if (panel !== undefined) {
+        panel.updateHunger();
+    }
+};

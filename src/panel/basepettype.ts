@@ -38,6 +38,7 @@ export abstract class BasePetType implements IPetType {
     private _name: string;
     private _speed: number;
     private _size: PetSize;
+    private _hunger: number;
 
     constructor(
         spriteElement: HTMLImageElement,
@@ -50,6 +51,7 @@ export abstract class BasePetType implements IPetType {
         floor: number,
         name: string,
         speed: number,
+        hunger: number,
     ) {
         this.el = spriteElement;
         this.collision = collisionElement;
@@ -65,6 +67,7 @@ export abstract class BasePetType implements IPetType {
         this._name = name;
         this._size = size;
         this._speed = this.randomizeSpeed(speed);
+        this._hunger = hunger;
 
         // Increment the static count of the Pet class that the constructor belongs to
         (this.constructor as any).count += 1;
@@ -332,5 +335,9 @@ export abstract class BasePetType implements IPetType {
 
     get emoji(): string {
         return '🐶';
+    }
+
+    get hunger(): number {
+        return this._hunger;
     }
 }

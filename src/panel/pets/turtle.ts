@@ -67,6 +67,9 @@ export class Turtle extends BasePetType {
     get hello(): string {
         return ` Slow and steady wins the race!`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const TURTLE_NAMES: ReadonlyArray<string> = [

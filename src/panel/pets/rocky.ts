@@ -31,6 +31,9 @@ export class Rocky extends BasePetType {
     get hello(): string {
         return ` 👋 I'm rock! I always Rock`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const ROCKY_NAMES: ReadonlyArray<string> = [

@@ -57,6 +57,9 @@ export class Rat extends BasePetType {
     get hello(): string {
         return `Rat noises...`;
     }
+    get hunger(): number {
+        return 0;
+    }
 }
 
 export const RAT_NAMES: ReadonlyArray<string> = [
