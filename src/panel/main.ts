@@ -600,6 +600,9 @@ export function petPanelApp(
                 petCounter = 1;
                 saveState(stateApi);
                 break;
+            case 'import-image':
+                document.body.style.backgroundImage = `url('${basePetUri}/backgrounds/${message.image}')`;
+                break;
         }
     });
 }

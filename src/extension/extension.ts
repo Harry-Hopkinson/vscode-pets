@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+const fs = require('fs');
+const path = require('path');
 import { ColorThemeKind } from 'vscode';
 import {
     PetSize,
@@ -98,6 +100,31 @@ async function updateExtensionPositionContext() {
         'vscode-pets.position',
         getConfigurationPosition(),
     );
+}
+
+async function importImageOnLoad(context: vscode.ExtensionContext) {
+    const panel = getPetPanel();
+    // check if in panel or explorer window
+    if (panel || webviewViewProvider) {
+        let image = vscode.workspace
+            .getConfiguration('vscode-pets')
+            .get<string>('customBackgroundImage', '');
+        if (image) {
+            const imagePath = path.join(
+                context.extensionPath,
+                'media/backgrounds/',
+                image,
+            )
+            vscode.window.showInformationMessage(
+                vscode.l10n.t(
+                    'Importing background image: {0}',
+                    imagePath,
+                ),
+            );
+            // @ts-ignore
+            await panel?.importImage(imagePath);
+        }
+    }
 }
 
 export class PetSpecification {
@@ -439,6 +466,53 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand(
+            'vscode-pets.import-background',
+            async () => {
+                const options: vscode.OpenDialogOptions = {
+                    canSelectMany: false,
+                    openLabel: 'Open background image',
+                    filters: {
+                        image: ['png', 'jpg', 'jpeg'],
+                    },
+                };
+                const fileUri = await vscode.window.showOpenDialog(options);
+
+                if (fileUri && fileUri[0]) {
+                    try {
+                        const panel = getPetPanel();
+                        if (panel !== undefined) {
+                            const source = fileUri[0].fsPath.toString();
+                            const dest = path.join(
+                                context.extensionPath,
+                                'media/backgrounds/',
+                                path.basename(source),
+                            );
+                            fs.copyFileSync(source, dest);
+                            panel.importImage(path.basename(source));
+
+                            await vscode.workspace
+                                .getConfiguration('vscode-pets')
+                                .update(
+                                    'customBackgroundImage',
+                                    path.basename(source),
+                                    vscode.ConfigurationTarget.Global,
+                                );
+                        }
+                    } catch (e: any) {
+                        await vscode.window.showErrorMessage(
+                            vscode.l10n.t(
+                                'Failed to import background image: {0}',
+                                e?.message,
+                            ),
+                        );
+                    }
+                }
+            },
+        ),
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
             'vscode-pets.import-pet-list',
             async () => {
                 const options: vscode.OpenDialogOptions = {
@@ -598,6 +672,8 @@ export function activate(context: vscode.ExtensionContext) {
         ),
     );
 
+    importImageOnLoad(context);
+
     // Listening to configuration changes
     context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration(
@@ -607,7 +683,8 @@ export function activate(context: vscode.ExtensionContext) {
                     e.affectsConfiguration('vscode-pets.petType') ||
                     e.affectsConfiguration('vscode-pets.petSize') ||
                     e.affectsConfiguration('vscode-pets.theme') ||
-                    e.affectsConfiguration('workbench.colorTheme')
+                    e.affectsConfiguration('workbench.colorTheme') ||
+                    e.affectsConfiguration('vscode-pets.customBackgroundImage')
                 ) {
                     const spec = PetSpecification.fromConfiguration();
                     const panel = getPetPanel();
@@ -620,6 +697,11 @@ export function activate(context: vscode.ExtensionContext) {
                             getConfiguredThemeKind(),
                         );
                         panel.update();
+                        panel.importImage(
+                            vscode.workspace
+                                .getConfiguration('vscode-pets')
+                                .get<string>('customBackgroundImage', ''),
+                        );
                     }
                 }
 
@@ -694,6 +776,7 @@ interface IPetPanel {
     updateTheme(newTheme: Theme, themeKind: vscode.ColorThemeKind): void;
     update(): void;
     setThrowWithMouse(newThrowWithMouse: boolean): void;
+    importImage(image: string): void;
 }
 
 class PetWebviewContainer implements IPetPanel {
@@ -810,6 +893,13 @@ class PetWebviewContainer implements IPetPanel {
         void this.getWebview().postMessage({
             command: 'delete-pet',
             name: petName,
+        });
+    }
+
+    public importImage(image: string) {
+        void this.getWebview().postMessage({
+            command: 'import-image',
+            image: image,
         });
     }
 
@@ -991,6 +1081,13 @@ class PetPanel extends PetWebviewContainer implements IPetPanel {
         void this.getWebview().postMessage({
             command: 'delete-pet',
             name: petName,
+        });
+    }
+
+    public importImage(image: string): void {
+        void this.getWebview().postMessage({
+            command: 'import-image',
+            image: image,
         });
     }
 

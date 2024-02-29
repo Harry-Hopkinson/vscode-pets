@@ -102,6 +102,11 @@
                 }
             },
             {
+                "command": "vscode-pets.import-background",
+                "title": "Import background",
+                "category": "Pet Coding"
+            },
+            {
                 "command": "vscode-pets.export-pet-list",
                 "title": "Export pet list",
                 "category": "Pet Coding"
@@ -224,6 +229,10 @@
                         "type": "boolean",
                         "default": false,
                         "description": "Throw ball with mouse"
+                    },
+                    "vscode-pets.customBackgroundImage": {
+                        "type": "string",
+                        "description": "Custom Background Image Name"
                     }
                 }
             }
